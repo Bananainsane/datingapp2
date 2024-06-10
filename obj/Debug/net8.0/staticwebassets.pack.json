@@ -1,0 +1,69 @@
+{
+  "Files": [
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/obj/Debug/net8.0/scopedcss/projectbundle/DatingApp.bundle.scp.css",
+      "PackagePath": "staticwebassets/DatingApp.bundle.scp.css"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/WebApplication.cs",
+      "PackagePath": "staticwebassets/WebApplication.cs"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/cs/Dbcontext.cs",
+      "PackagePath": "staticwebassets/cs/Dbcontext.cs"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/css/app.css",
+      "PackagePath": "staticwebassets/css/app.css"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/css/bootstrap/bootstrap.min.css",
+      "PackagePath": "staticwebassets/css/bootstrap/bootstrap.min.css"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/css/bootstrap/bootstrap.min.css.map",
+      "PackagePath": "staticwebassets/css/bootstrap/bootstrap.min.css.map"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/css/output.css",
+      "PackagePath": "staticwebassets/css/output.css"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/css/styles.css",
+      "PackagePath": "staticwebassets/css/styles.css"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/favicon.png",
+      "PackagePath": "staticwebassets/favicon.png"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/icon-192.png",
+      "PackagePath": "staticwebassets/icon-192.png"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/js/swipeHandlers.js",
+      "PackagePath": "staticwebassets/js/swipeHandlers.js"
+    },
+    {
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/sample-data/weather.json",
+      "PackagePath": "staticwebassets/sample-data/weather.json"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.DatingApp.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.DatingApp.props",
+      "PackagePath": "build\\DatingApp.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.DatingApp.props",
+      "PackagePath": "buildMultiTargeting\\DatingApp.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.DatingApp.props",
+      "PackagePath": "buildTransitive\\DatingApp.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -1,0 +1,43 @@
+﻿<div class="top-row ps-3 navbar navbar-dark bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 py-4 shadow-md">
+    <div class="container mx-auto flex items-center justify-between">
+        <a class="navbar-brand text-white text-2xl font-bold" href="#">DatingApp</a>
+        <button title="Navigation menu" class="navbar-toggler p-2 rounded-md bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition duration-200" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon text-white"></span>
+        </button>
+    </div>
+</div>
+
+<div class="bg-gray-800 text-white p-3 fixed inset-x-0 bottom-0 flex justify-around shadow-lg">
+    <NavLink class="text-center text-white hover:text-indigo-300 transition duration-200" href="/">
+        <i class="fas fa-home text-2xl"></i>
+        <span class="text-xs block mt-1">Home</span>
+    </NavLink>
+    <NavLink class="text-center text-white hover:text-indigo-300 transition duration-200" href="/profile">
+        <i class="fas fa-user text-2xl"></i>
+        <span class="text-xs block mt-1">Profile</span>
+    </NavLink>
+    <NavLink class="text-center text-white hover:text-indigo-300 transition duration-200" href="/Explore">
+        <i class="fas fa-search text-2xl"></i>
+        <span class="text-xs block mt-1">Explore</span>
+    </NavLink>
+    <NavLink class="text-center text-white hover:text-indigo-300 transition duration-200" href="/messages">
+        <i class="fas fa-envelope text-2xl"></i>
+        <span class="text-xs block mt-1">Messages</span>
+    </NavLink>
+    <NavLink class="text-center text-white hover:text-indigo-300 transition duration-200" href="/settings">
+        <i class="fas fa-cog text-2xl"></i>
+        <span class="text-xs block mt-1">Settings</span>
+    </NavLink>
+</div>
+
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

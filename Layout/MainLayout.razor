@@ -1,0 +1,13 @@
+﻿@inherits LayoutComponentBase
+
+<div class="flex flex-col h-screen">
+    <div class="top-row px-4 sticky top-0 z-10 bg-white shadow-md">
+        <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+    </div>
+
+    <article class="flex-grow overflow-auto">
+        @Body
+    </article>
+
+    <NavMenu />
+</div>
