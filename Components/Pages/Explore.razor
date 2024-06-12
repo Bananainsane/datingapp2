@@ -1,0 +1,101 @@
+@page "/explore/{userId:int}"
+@inject DatingApp.Data.DatingContext DB
+@inject IJSRuntime JSRuntime
+@inject DatingApp.Services.UserService UserService
+@using DatingApp.Models
+@using Microsoft.EntityFrameworkCore
+@using System.Linq
+@rendermode InteractiveServer
+
+<div class="flex flex-col items-center h-screen bg-gray-100 p-4">
+    @if (profiles != null && profiles.Any())
+    {
+        <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach (var profile in profiles)
+            {
+                <div class="relative w-full h-64 bg-cover bg-center rounded-xl overflow-hidden shadow-lg"
+                    style="background-image: url('@profile.ImageUrl');" id="profileElementId">
+                    <div class="w-full h-full flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent p-4">
+                        <div class="text-white">
+                            <p class="text-2xl md:text-3xl font-extrabold">@profile.UserName</p>
+                            <p class="text-lg md:text-xl">@CalculateAge(profile.BirthDate) years old</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-gray-500 text-2xl">No profiles available.</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int userId { get; set; }
+
+    private List<UserProfile> profiles = new List<UserProfile>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProfiles();
+    }
+
+    private async Task LoadProfiles()
+    {
+        profiles = await DB.UserProfiles
+            .Where(up => up.UserId != userId) // Exclude the current user's profile
+            .OrderBy(r => Guid.NewGuid()) // Randomize the profiles
+            .Take(10) // Limit the number of profiles to load
+            .ToListAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("addSwipeListener", "profileElementId", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    public async Task SwipeRight()
+    {
+        // Process right swipe
+        UpdateProfile();
+    }
+
+    [JSInvokable]
+    public async Task SwipeLeft()
+    {
+        // Process left swipe
+        UpdateProfile();
+    }
+
+    private void UpdateProfile()
+    {
+        if (profiles.Count > 1)
+        {
+            profiles.RemoveAt(0); // Remove the top profile
+            InvokeAsync(StateHasChanged); // Update UI
+        }
+    }
+
+    private int CalculateAge(DateTime? birthDate)
+    {
+        if (birthDate.HasValue)
+        {
+            DateTime now = DateTime.Today;
+            int age = now.Year - birthDate.Value.Year;
+
+            if (birthDate.Value.Date > now.AddYears(-age))
+            {
+                age--;
+            }
+
+            return age;
+        }
+        return 0;
+    }
+}

@@ -1,0 +1,162 @@
+﻿@page "/UserProfileSetup/{userId:int}"
+@inject NavigationManager NavigationManager
+@inject DatingApp.Data.DatingContext DB
+@inject DatingApp.Services.UserService UserService
+@using DatingApp.Models
+@using DatingApp.Model.Enums
+@using Microsoft.EntityFrameworkCore
+@using System.ComponentModel.DataAnnotations
+
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-4 text-center">Edit Profile</h2>
+        @if (userProfile != null)
+        {
+            <EditForm Model="userProfile" OnValidSubmit="HandleSubmit" FormName="editUserProfileForm">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-red-500" />
+
+                <div>
+                    <label for="UserName" class="block text-sm font-medium text-gray-700">User Name</label>
+                    <InputText id="UserName" @bind-Value="userProfile.UserName"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                    <ValidationMessage For="@(() => userProfile.UserName)" class="text-red-500 text-sm" />
+                </div>
+
+                <div>
+                    <label for="BirthDate" class="block text-sm font-medium text-gray-700">Birth Date</label>
+                    <InputDate id="BirthDate" @bind-Value="userProfile.BirthDate"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                    <ValidationMessage For="@(() => userProfile.BirthDate)" class="text-red-500 text-sm" />
+                </div>
+
+                <div>
+                    <label for="Height" class="block text-sm font-medium text-gray-700">Height (cm)</label>
+                    <InputNumber id="Height" @bind-Value="userProfile.Height"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                    <ValidationMessage For="@(() => userProfile.Height)" class="text-red-500 text-sm" />
+                </div>
+
+                <div>
+                    <label for="AboutMe" class="block text-sm font-medium text-gray-700">About Me</label>
+                    <InputTextArea id="AboutMe" @bind-Value="userProfile.AboutMe"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                </div>
+
+                <div>
+                    <label for="Gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                    <InputSelect id="Gender" @bind-Value="userProfile.Gender"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <option value="">Select Gender</option>
+                        @foreach (var gender in Enum.GetValues<Gender>())
+                        {
+                            <option value="@gender">@gender</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => userProfile.Gender)" class="text-red-500 text-sm" />
+                </div>
+
+                <div>
+                    <label for="CityName" class="block text-sm font-medium text-gray-700">City Name</label>
+                    <InputText id="CityName" @bind-Value="userProfile.CityName"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                    <ValidationMessage For="@(() => userProfile.CityName)" class="text-red-500 text-sm" />
+                </div>
+
+                <div>
+                    <label for="Hobbies" class="block text-sm font-medium text-gray-700">Hobbies</label>
+                    <InputText id="Hobbies" @bind-Value="userProfile.Hobbies"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                    <ValidationMessage For="@(() => userProfile.Hobbies)" class="text-red-500 text-sm" />
+                </div>
+
+                <div>
+                    <button type="submit"
+                        class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Save Profile
+                    </button>
+                </div>
+            </EditForm>
+            <div class="mt-4 text-center">
+                <a href="/profile/@userProfile.UserId" class="text-indigo-600 hover:text-indigo-900">
+                    <i class="fas fa-arrow-left"></i> Back to Profile
+                </a>
+            </div>
+        }
+        else
+        {
+            <p>Loading...</p>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int userId { get; set; }
+
+    private UserProfile? userProfile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UserService.IsLoggedIn)
+        {
+            Console.WriteLine("User is logged in, loading profile.");
+            userProfile = await DB.UserProfiles.FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (userProfile == null)
+            {
+                Console.WriteLine("No existing profile found, creating new profile for user ID " + userId);
+                userProfile = new UserProfile
+                {
+                    UserId = userId
+                };
+            }
+            else
+            {
+                Console.WriteLine("Profile loaded for user ID " + userId);
+            }
+        }
+        else
+        {
+            Console.WriteLine("User is not logged in. Redirecting to login page.");
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        Console.WriteLine("HandleSubmit triggered");
+
+        if (userProfile != null)
+        {
+            try
+            {
+                if (userProfile.Id == 0) // New profile, since Id is not set
+                {
+                    Console.WriteLine("Creating a new profile for user ID " + userId);
+                    DB.UserProfiles.Add(userProfile);
+                }
+                else // Existing profile
+                {
+                    Console.WriteLine("Updating the profile for user ID " + userId);
+                    DB.UserProfiles.Update(userProfile);
+                }
+
+                await DB.SaveChangesAsync();
+                Console.WriteLine("Profile saved successfully for user ID " + userProfile.UserId);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine("Database update exception: " + dbEx.InnerException?.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("General error adding profile: " + ex.Message);
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine("Inner exception: " + ex.InnerException.Message);
+                }
+            }
+        }
+    }
+}

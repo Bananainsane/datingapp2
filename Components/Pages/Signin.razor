@@ -1,0 +1,95 @@
+@page "/signin"
+@inject NavigationManager NavigationManager
+@inject DatingApp.Data.DatingContext DB
+@inject DatingApp.Services.UserService UserService
+@using DatingApp.Models
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+@using Microsoft.JSInterop
+
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+        @if (UserService.IsLoggedIn)
+        {
+            <div class="text-center">
+                <p>You are already logged in. Redirecting to your profile...</p>
+                <p>If you are not redirected, <a href="/profile/@UserService.Id" class="text-indigo-600 hover:text-indigo-900">click here</a>.</p>
+            </div>
+        }
+        else
+        {
+            <h2 class="text-2xl font-bold mb-4 text-center">Login</h2>
+            <EditForm Model="user" OnSubmit="LoginPage" class="space-y-4" FormName="login">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-red-500" />
+
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <InputText id="username" @bind-Value="user.Login" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                    <ValidationMessage For="() => user.Login" class="text-red-500 text-sm" />
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <InputText id="password" type="password" @bind-Value="user.Password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                    <ValidationMessage For="() => user.Password" class="text-red-500 text-sm" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <span class="block sm:inline">@errorMessage</span>
+                    </div>
+                }
+
+                <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Login
+                </button>
+            </EditForm>
+            <div class="mt-4 text-center">
+                <p>No account? <a href="/users/signup" class="text-indigo-600 hover:text-indigo-900">Create Account here</a></p>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private User user { get; set; } = new();
+    private string errorMessage;
+
+    protected override void OnInitialized()
+    {
+        if (UserService.IsLoggedIn)
+        {
+            JSRuntime.InvokeVoidAsync("alert", "You are already Logged In..");
+            NavigationManager.NavigateTo($"/profile/{UserService.Id}");
+        }
+    }
+
+    private async Task LoginPage()
+    {
+        // Replace this with your actual authentication logic
+        var authenticatedUser = await DB.Users
+            .FirstOrDefaultAsync(u => u.Login == user.Login && u.Password == user.Password);
+
+        if (authenticatedUser != null)
+        {
+            // Successful login, save user details and set IsLoggedIn to true
+            UserService.Id = authenticatedUser.Id;
+            UserService.FirstName = authenticatedUser.FirstName;
+            UserService.LastName = authenticatedUser.LastName;
+            UserService.Email = authenticatedUser.Email;
+            UserService.Login = authenticatedUser.Login;
+            UserService.IsLoggedIn = true;
+
+            NavigationManager.NavigateTo($"/profile/{authenticatedUser.Id}");
+        }
+        else
+        {
+            errorMessage = "Invalid username or password. Please try again.";
+        }
+    }
+}

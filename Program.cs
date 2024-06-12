@@ -1,4 +1,4 @@
-using DatingApp;
+using DatingApp.Components;
 using DatingApp.Data;
 using DatingApp.Services;
 using Microsoft.EntityFrameworkCore;
@@ -9,21 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Register the DbContext with a check for the connection string
+
 builder.Services.AddDbContext<DatingContext>(options =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("DatingConnection");
-    if (string.IsNullOrEmpty(connectionString))
-    {
-        throw new InvalidOperationException("Connection string 'DatingConnection' not found.");
-    }
-    options.UseSqlServer(connectionString);
-});
+options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection") ?? throw new InvalidOperationException("Connection string 'DatingConnection' not found.")));
 
 builder.Services.AddQuickGridEntityFrameworkAdapter();
 
-// Register UserService as a singleton or scoped, depending on your requirements.
-//builder.Services.AddScoped<UserService>(); // Uncomment if you prefer scoped.
+//builder.Services.AddScoped<UserService>();
 builder.Services.AddSingleton<UserService>();
 
 builder.Services.AddBlazorBootstrap();

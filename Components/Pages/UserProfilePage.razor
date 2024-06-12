@@ -1,0 +1,173 @@
+@page "/profile/{userId:int}"
+@inject NavigationManager NavigationManager
+@inject DatingApp.Data.DatingContext DB
+@inject DatingApp.Services.UserService UserService
+@using DatingApp.Models
+@using DatingApp.Model.Enums
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+<div class="min-h-screen bg-gray-100 flex items-center justify-center">
+    @if (!UserService.IsLoggedIn)
+    {
+        <div class="text-center bg-white p-6 rounded shadow-lg">
+            <p>Please <a href="/signin" class="text-indigo-600 hover:text-indigo-900">login</a> to access your profile.</p>
+        </div>
+    }
+    else if (profile != null)
+    {
+        <div class="w-full max-w-4xl bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-user-circle text-4xl text-indigo-600"></i>
+                    <h2 class="text-2xl font-bold ml-4">@UserService.FirstName @UserService.LastName</h2>
+                </div>
+                <div class="space-x-2">
+                    <button
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        @onclick="EditProfile">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
+                        <h3 class="font-semibold">Username</h3>
+                        <p>@profile.UserName</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner mt-4">
+                        <h3 class="font-semibold">Birth Date</h3>
+                        <p>@FormatBirthDate(profile.BirthDate)</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner mt-4">
+                        <h3 class="font-semibold">Age</h3>
+                        <p>@Age(profile.BirthDate)</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
+                        <h3 class="font-semibold">Height</h3>
+                        <p>@profile.Height cm</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner mt-4">
+                        <h3 class="font-semibold">Gender</h3>
+                        <p>@profile.Gender</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner mt-4">
+                        <h3 class="font-semibold">City Name</h3>
+                        <p>@profile.CityName</p>
+                    </div>
+                </div>
+                <div class="md:col-span-2">
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner mt-4">
+                        <h3 class="font-semibold">About Me</h3>
+                        <p>@profile.AboutMe</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner mt-4">
+                        <h3 class="font-semibold">Hobbies</h3>
+                        <p>@profile.Hobbies</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <button
+            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            @onclick="EditProfile">Edit Profile</button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int userId { get; set; }
+
+    private DatingApp.Models.UserProfile? profile;
+
+    private bool editMode = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UserService.IsLoggedIn)
+        {
+            profile = await DB.UserProfiles.FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (profile == null)
+            {
+                profile = new DatingApp.Models.UserProfile
+                    {
+                        UserId = userId
+                    };
+            }
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (profile != null)
+        {
+            if (profile.Id == 0) // New profile, since Id is not set
+            {
+                DB.UserProfiles.Add(profile);
+            }
+            else // Existing profile
+            {
+                DB.UserProfiles.Update(profile);
+            }
+            await DB.SaveChangesAsync();
+            NavigationManager.NavigateTo($"/user/{profile.UserId}");
+        }
+    }
+
+    private void EditProfile()
+    {
+        NavigationManager.NavigateTo($"/UserProfileSetup/{userId}");
+    }
+    private void LoginSettings()
+    {
+        NavigationManager.NavigateTo($"/login/{userId}");
+    }
+
+    private string FormatBirthDate(DateTime? birthDate)
+    {
+        if (birthDate.HasValue)
+        {
+            // Get the name of the month and the year
+            int day = birthDate.Value.Day;
+            string monthName = birthDate.Value.ToString("MMMM");
+            monthName = char.ToUpper(monthName[0]) + monthName.Substring(1);
+            int year = birthDate.Value.Year;
+
+            return $"{day} {monthName} {year}";
+        }
+        else
+        {
+            return "Unknown";
+        }
+    }
+
+    private int Age(DateTime? birthDate)
+    {
+        if (birthDate.HasValue)
+        {
+            DateTime now = DateTime.Today;
+            int age = now.Year - birthDate.Value.Year;
+
+            if (birthDate.Value.Date > now.AddYears(-age))
+            {
+                age--;
+            }
+
+            return age;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+}
+

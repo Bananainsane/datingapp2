@@ -1,4 +1,4 @@
-using DatingApp.Model.Enums;
+﻿using DatingApp.Model.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -29,6 +29,8 @@ namespace DatingApp.Models
         public string CityName { get; set; }
 
         public string Hobbies { get; set; }
+
+        public string ImageUrl { get; set; } // Ensure this property exists
 
         // Navigation property for self-referencing many-to-many relationship
         public virtual ICollection<Like> LikedByUsers { get; set; } = new List<Like>();
