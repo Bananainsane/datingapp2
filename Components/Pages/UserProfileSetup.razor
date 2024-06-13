@@ -5,69 +5,71 @@
 @using DatingApp.Models
 @using DatingApp.Model.Enums
 @using Microsoft.EntityFrameworkCore
-@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
 
 <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold mb-4 text-center">Edit Profile</h2>
-        @if (userProfile != null)
+
+        @if (LastSubmitResult != null)
         {
-            <EditForm Model="userProfile" OnValidSubmit="HandleSubmit" FormName="editUserProfileForm">
+            <h2 class="text-center text-red-500">
+                Last submit status: @LastSubmitResult
+            </h2>
+        }
+
+        @if (editContext != null)
+        {
+            <EditForm EditContext="@editContext" OnValidSubmit="ValidFormSubmitted" OnInvalidSubmit="InvalidFormSubmitted" FormName="editUserProfileForm" autocomplete="off">
                 <DataAnnotationsValidator />
-                <ValidationSummary class="text-red-500" />
+                <ValidationSummary />
 
                 <div>
                     <label for="UserName" class="block text-sm font-medium text-gray-700">User Name</label>
-                    <InputText id="UserName" @bind-Value="userProfile.UserName"
+                    <InputText id="UserName" @bind-Value="userName"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-                    <ValidationMessage For="@(() => userProfile.UserName)" class="text-red-500 text-sm" />
                 </div>
 
                 <div>
                     <label for="BirthDate" class="block text-sm font-medium text-gray-700">Birth Date</label>
-                    <InputDate id="BirthDate" @bind-Value="userProfile.BirthDate"
+                    <InputDate id="BirthDate" @bind-Value="birthDate"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-                    <ValidationMessage For="@(() => userProfile.BirthDate)" class="text-red-500 text-sm" />
                 </div>
 
                 <div>
                     <label for="Height" class="block text-sm font-medium text-gray-700">Height (cm)</label>
-                    <InputNumber id="Height" @bind-Value="userProfile.Height"
+                    <InputNumber id="Height" @bind-Value="height"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-                    <ValidationMessage For="@(() => userProfile.Height)" class="text-red-500 text-sm" />
                 </div>
 
                 <div>
                     <label for="AboutMe" class="block text-sm font-medium text-gray-700">About Me</label>
-                    <InputTextArea id="AboutMe" @bind-Value="userProfile.AboutMe"
+                    <InputTextArea id="AboutMe" @bind-Value="aboutMe"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
                 </div>
 
                 <div>
                     <label for="Gender" class="block text-sm font-medium text-gray-700">Gender</label>
-                    <InputSelect id="Gender" @bind-Value="userProfile.Gender"
+                    <InputSelect id="Gender" @bind-Value="gender"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         <option value="">Select Gender</option>
-                        @foreach (var gender in Enum.GetValues<Gender>())
+                        @foreach (var genderOption in Enum.GetValues<Gender>())
                         {
-                            <option value="@gender">@gender</option>
+                            <option value="@genderOption">@genderOption</option>
                         }
                     </InputSelect>
-                    <ValidationMessage For="@(() => userProfile.Gender)" class="text-red-500 text-sm" />
                 </div>
 
                 <div>
                     <label for="CityName" class="block text-sm font-medium text-gray-700">City Name</label>
-                    <InputText id="CityName" @bind-Value="userProfile.CityName"
+                    <InputText id="CityName" @bind-Value="cityName"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-                    <ValidationMessage For="@(() => userProfile.CityName)" class="text-red-500 text-sm" />
                 </div>
 
                 <div>
                     <label for="Hobbies" class="block text-sm font-medium text-gray-700">Hobbies</label>
-                    <InputText id="Hobbies" @bind-Value="userProfile.Hobbies"
+                    <InputText id="Hobbies" @bind-Value="hobbies"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-                    <ValidationMessage For="@(() => userProfile.Hobbies)" class="text-red-500 text-sm" />
                 </div>
 
                 <div>
@@ -95,6 +97,18 @@
     public int userId { get; set; }
 
     private UserProfile? userProfile;
+    private string LastSubmitResult;
+
+    // Individual variables for form fields
+    private string userName;
+    private DateTime? birthDate;
+    private int? height;
+    private string aboutMe;
+    private Gender? gender;
+    private string cityName;
+    private string hobbies;
+
+    private EditContext editContext;
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,55 +122,97 @@
                 Console.WriteLine("No existing profile found, creating new profile for user ID " + userId);
                 userProfile = new UserProfile
                 {
-                    UserId = userId
+                    UserId = userId,
+                    BirthDate = DateTime.Now // Initialize BirthDate to a default value
                 };
             }
             else
             {
-                Console.WriteLine("Profile loaded for user ID " + userId);
+                Console.WriteLine($"Profile loaded for user ID {userId}: {userProfile.UserName}, {userProfile.BirthDate}, {userProfile.Height}, {userProfile.AboutMe}, {userProfile.Gender}, {userProfile.CityName}, {userProfile.Hobbies}.");
+
+                // Initialize form variables with existing profile data
+                userName = userProfile.UserName;
+                birthDate = userProfile.BirthDate;
+                height = userProfile.Height;
+                aboutMe = userProfile.AboutMe;
+                gender = userProfile.Gender;
+                cityName = userProfile.CityName;
+                hobbies = userProfile.Hobbies;
             }
+
+            // Create EditContext with initial form values
+            editContext = new EditContext(this);
         }
         else
         {
             Console.WriteLine("User is not logged in. Redirecting to login page.");
-            NavigationManager.NavigateTo("/login");
+            NavigationManager.NavigateTo("/signin");
         }
     }
 
-    private async Task HandleSubmit()
+    private async Task ValidFormSubmitted()
     {
-        Console.WriteLine("HandleSubmit triggered");
+        Console.WriteLine("ValidFormSubmitted triggered");
 
-        if (userProfile != null)
+
+        // Validate individual fields before constructing userProfile
+        if (string.IsNullOrEmpty(userName) || !birthDate.HasValue)
         {
-            try
-            {
-                if (userProfile.Id == 0) // New profile, since Id is not set
-                {
-                    Console.WriteLine("Creating a new profile for user ID " + userId);
-                    DB.UserProfiles.Add(userProfile);
-                }
-                else // Existing profile
-                {
-                    Console.WriteLine("Updating the profile for user ID " + userId);
-                    DB.UserProfiles.Update(userProfile);
-                }
-
-                await DB.SaveChangesAsync();
-                Console.WriteLine("Profile saved successfully for user ID " + userProfile.UserId);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                Console.WriteLine("Database update exception: " + dbEx.InnerException?.Message);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("General error adding profile: " + ex.Message);
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine("Inner exception: " + ex.InnerException.Message);
-                }
-            }
+            LastSubmitResult = "Error: All required fields must be filled out.";
+            return;
         }
+
+        userProfile = new UserProfile
+        {
+            UserId = userId,
+            UserName = userName,
+            BirthDate = birthDate.Value,
+            Height = height ?? 0,
+            AboutMe = aboutMe,
+            Gender = gender ?? Gender.Other,
+            CityName = cityName,
+            Hobbies = hobbies
+        };
+
+        try
+        {
+            var existingProfile = await DB.UserProfiles.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (existingProfile != null) // Existing profile
+            {
+                Console.WriteLine($"Updating the profile for user ID {userId}.");
+                DB.Entry(userProfile).State = EntityState.Modified;
+            }
+            else // New profile
+            {
+                Console.WriteLine($"Creating a new profile for user ID {userId}.");
+                DB.UserProfiles.Add(userProfile);
+            }
+
+            await DB.SaveChangesAsync();
+            Console.WriteLine("Profile saved successfully for user ID " + userProfile.UserId);
+            LastSubmitResult = "Profile saved successfully!";
+            NavigationManager.NavigateTo($"/profile/{userProfile.UserId}");
+        }
+        catch (DbUpdateException dbEx)
+        {
+            Console.WriteLine("Database update exception: " + dbEx.InnerException?.Message);
+            LastSubmitResult = "Error: Unable to save profile to the database.";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("General error saving profile: " + ex.Message);
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine("Inner exception: " + ex.InnerException.Message);
+            }
+            LastSubmitResult = "Error: An unexpected error occurred while saving the profile.";
+        }
+    }
+
+    private void InvalidFormSubmitted()
+    {
+        Console.WriteLine("InvalidFormSubmitted triggered");
+        LastSubmitResult = "Form submission failed. Please check for validation errors.";
     }
 }

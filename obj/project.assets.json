@@ -4318,6 +4318,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "Blazor.Bootstrap >= 2.0.0",
+      "Microsoft.AspNetCore.Components >= 8.0.2",
       "Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter >= 8.0.2",
       "Microsoft.Data.SqlClient >= 5.2.0",
       "Microsoft.EntityFrameworkCore >= 8.0.6",
@@ -4374,6 +4375,10 @@
           "Blazor.Bootstrap": {
             "target": "Package",
             "version": "[2.0.0, )"
+          },
+          "Microsoft.AspNetCore.Components": {
+            "target": "Package",
+            "version": "[8.0.2, )"
           },
           "Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter": {
             "target": "Package",

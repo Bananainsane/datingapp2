@@ -33,40 +33,12 @@
       "PackagePath": "staticwebassets\\css\\tailwind-built.css"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\favicon.png",
-      "PackagePath": "staticwebassets\\favicon.png"
-    },
-    {
       "Id": "C:\\code\\datingapp2\\wwwroot\\icon-192.png",
       "PackagePath": "staticwebassets\\icon-192.png"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\imgs\\gif1.gif",
-      "PackagePath": "staticwebassets\\imgs\\gif1.gif"
-    },
-    {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\imgs\\gif2.gif",
-      "PackagePath": "staticwebassets\\imgs\\gif2.gif"
-    },
-    {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\imgs\\gif3.gif",
-      "PackagePath": "staticwebassets\\imgs\\gif3.gif"
-    },
-    {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\imgs\\gif4.gif",
-      "PackagePath": "staticwebassets\\imgs\\gif4.gif"
-    },
-    {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\imgs\\gif5.gif",
-      "PackagePath": "staticwebassets\\imgs\\gif5.gif"
-    },
-    {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\imgs\\pal.png",
-      "PackagePath": "staticwebassets\\imgs\\pal.png"
-    },
-    {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\imgs\\pal2.png",
-      "PackagePath": "staticwebassets\\imgs\\pal2.png"
+      "Id": "C:\\code\\datingapp2\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
     },
     {
       "Id": "C:\\code\\datingapp2\\wwwroot\\js\\swipeHandlers.js",

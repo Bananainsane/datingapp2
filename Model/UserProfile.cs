@@ -26,11 +26,11 @@ namespace DatingApp.Models
         [EnumDataType(typeof(Gender), ErrorMessage = "Please Select a Gender")]
         public Gender Gender { get; set; }
 
-        public string CityName { get; set; }
+        public string? CityName { get; set; }
 
-        public string Hobbies { get; set; }
+        public string? Hobbies { get; set; }
 
-        public string ImageUrl { get; set; } // Ensure this property exists
+        public string? ImageUrl { get; set; }
 
         // Navigation property for self-referencing many-to-many relationship
         public virtual ICollection<Like> LikedByUsers { get; set; } = new List<Like>();
@@ -40,6 +40,6 @@ namespace DatingApp.Models
         public virtual ICollection<Message> SentByUsers { get; set; } = new List<Message>();
         public virtual ICollection<Message> ReceivedByUsers { get; set; } = new List<Message>();
 
-        public User User { get; set; }
+        public User? User { get; set; }
     }
 }
