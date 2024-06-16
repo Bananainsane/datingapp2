@@ -4329,26 +4329,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\hansp\\.nuget\\packages\\": {}
+    "/Users/hans/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\code\\datingapp2\\DatingApp.csproj",
+      "projectUniqueName": "/Users/hans/Skole/code/DatingAPP/DatingApp.csproj",
       "projectName": "DatingApp",
-      "projectPath": "C:\\code\\datingapp2\\DatingApp.csproj",
-      "packagesPath": "C:\\Users\\hansp\\.nuget\\packages\\",
-      "outputPath": "C:\\code\\datingapp2\\obj\\",
+      "projectPath": "/Users/hans/Skole/code/DatingAPP/DatingApp.csproj",
+      "packagesPath": "/Users/hans/.nuget/packages/",
+      "outputPath": "/Users/hans/Skole/code/DatingAPP/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\hansp\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/hans/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -4430,7 +4428,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.301/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.300/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

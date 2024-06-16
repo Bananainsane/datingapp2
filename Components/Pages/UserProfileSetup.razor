@@ -52,11 +52,11 @@
                     <label for="Gender" class="block text-sm font-medium text-gray-700">Gender</label>
                     <InputSelect id="Gender" @bind-Value="gender"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <option value="">Select Gender</option>
-                        @foreach (var genderOption in Enum.GetValues<Gender>())
-                        {
-                            <option value="@genderOption">@genderOption</option>
-                        }
+                        <option value="">Select a Gender</option>
+                @foreach (var gender in Enum.GetValues<Gender>())
+                {
+                    <option value="@gender">@gender</option>
+                }
                     </InputSelect>
                 </div>
 

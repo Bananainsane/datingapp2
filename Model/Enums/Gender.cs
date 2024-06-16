@@ -1,9 +1,9 @@
-﻿namespace DatingApp.Model.Enums
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DatingApp.Model.Enums
 {
     public enum Gender
     {
-        Male,
-        Female,
-        Other
+        Male = 1, Female, Other
     }
 }

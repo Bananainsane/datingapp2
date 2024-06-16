@@ -2,16 +2,17 @@
 @inject DatingApp.Data.DatingContext DB
 @inject IJSRuntime JSRuntime
 @inject DatingApp.Services.UserService UserService
+@using DatingApp.Model.Enums
 @using DatingApp.Models
 @using Microsoft.EntityFrameworkCore
 @using System.Linq
 @rendermode InteractiveServer
 
-<div class="flex flex-col items-center h-screen bg-gray-100 p-4">
+<div class="flex items-center justify-center h-screen bg-gray-100 p-4">
     @if (profiles != null && profiles.Any())
     {
-        <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach (var profile in profiles)
+        <div class="w-full max-w-xl">
+            @foreach (var profile in profiles.Take(1)) // Only take the first profile for display
             {
                 <div class="relative w-full h-64 bg-cover bg-center rounded-xl overflow-hidden shadow-lg"
                     style="background-image: url('@profile.ImageUrl');" id="profileElementId">
@@ -36,20 +37,38 @@
     public int userId { get; set; }
 
     private List<UserProfile> profiles = new List<UserProfile>();
+    private UserProfile currentUser;
 
     protected override async Task OnInitializedAsync()
     {
+        currentUser = await DB.UserProfiles.FirstOrDefaultAsync(u => u.UserId == userId);
         await LoadProfiles();
     }
 
-    private async Task LoadProfiles()
+ private async Task LoadProfiles()
+{
+    // Assuming Gender is stored as an enum in the database and currentUser is correctly instantiated.
+    Gender genderPreference = currentUser.Gender == Gender.Male ? Gender.Female : Gender.Male; // Default to opposite binary genders
+    if (currentUser.Gender == Gender.Other)
     {
+        // Assuming a strategy for 'Other', could be customized based on app requirements
+        // Here we just randomly show profiles of any gender except 'Other'
         profiles = await DB.UserProfiles
-            .Where(up => up.UserId != userId) // Exclude the current user's profile
-            .OrderBy(r => Guid.NewGuid()) // Randomize the profiles
-            .Take(10) // Limit the number of profiles to load
+            .Where(up => up.UserId != userId && up.Gender != Gender.Other)
+            .OrderBy(r => Guid.NewGuid())
+            .Take(10)
             .ToListAsync();
     }
+    else
+    {
+        profiles = await DB.UserProfiles
+            .Where(up => up.UserId != userId && up.Gender == genderPreference)
+            .OrderBy(r => Guid.NewGuid())
+            .Take(10)
+            .ToListAsync();
+    }
+}
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
