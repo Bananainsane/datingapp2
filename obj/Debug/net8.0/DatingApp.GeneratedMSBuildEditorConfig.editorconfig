@@ -30,6 +30,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ib21lLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/hans/Skole/code/DatingAPP/Components/Pages/Matches.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9NYXRjaGVzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/hans/Skole/code/DatingAPP/Components/Pages/Messages.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9NZXNzYWdlcy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

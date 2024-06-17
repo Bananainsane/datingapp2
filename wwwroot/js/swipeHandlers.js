@@ -58,17 +58,8 @@ function initializeSwipeListener() {
             console.log('Swipe did not meet threshold');
         }
     }
-
-    function waitForBlazorAndStart() {
-        if (typeof Blazor !== 'undefined' && Blazor !== null) {
-            Blazor.start().then(() => {
-                initializeSwipeListener();
-            });
-        } else {
-            console.log('Waiting for Blazor to be defined...');
-            setTimeout(waitForBlazorAndStart, 100); // Check every 100ms
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', waitForBlazarAndStart);
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    initializeSwipeListener();
+});

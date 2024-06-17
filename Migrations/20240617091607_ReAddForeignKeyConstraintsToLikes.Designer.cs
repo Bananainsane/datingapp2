@@ -4,6 +4,7 @@ using DatingApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatingApp.Migrations
 {
     [DbContext(typeof(DatingContext))]
-    partial class DatingContextModelSnapshot : ModelSnapshot
+    [Migration("20240617091607_ReAddForeignKeyConstraintsToLikes")]
+    partial class ReAddForeignKeyConstraintsToLikes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,7 +50,7 @@ namespace DatingApp.Migrations
 
                     b.HasIndex("LikerId");
 
-                    b.ToTable("Likes", (string)null);
+                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("DatingApp.Models.Message", b =>
@@ -73,16 +76,13 @@ namespace DatingApp.Migrations
                         .HasColumnType("int")
                         .HasDefaultValueSql("0");
 
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ReceiverId");
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Messages", (string)null);
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("DatingApp.Models.User", b =>
@@ -133,7 +133,7 @@ namespace DatingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("DatingApp.Models.UserProfile", b =>
@@ -182,7 +182,7 @@ namespace DatingApp.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserProfiles", (string)null);
+                    b.ToTable("UserProfiles");
                 });
 
             modelBuilder.Entity("DatingApp.Models.Like", b =>

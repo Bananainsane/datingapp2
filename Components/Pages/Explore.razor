@@ -8,113 +8,155 @@
 @using System.Linq
 @rendermode InteractiveServer
 
-<div class="flex items-center justify-center h-screen bg-gray-100 p-4">
-    @if (profiles != null && profiles.Any())
-    {
-        <div class="w-full max-w-xl">
-            @foreach (var profile in profiles.Take(1)) // Only take the first profile for display
-            {
-                <div class="relative w-full h-64 bg-cover bg-center rounded-xl overflow-hidden shadow-lg"
-                    style="background-image: url('@profile.ImageUrl');" id="profileElementId">
-                    <div class="w-full h-full flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent p-4">
-                        <div class="text-white">
-                            <p class="text-2xl md:text-3xl font-extrabold">@profile.UserName</p>
-                            <p class="text-lg md:text-xl">@CalculateAge(profile.BirthDate) years old</p>
-                        </div>
-                    </div>
-                </div>
-            }
+@if (!UserService.IsLoggedIn)
+{
+    <div>Please <a href="/login">login</a> to view other user profiles.</div>
+}
+else if (currentProfile != null)
+{
+    <div class="container mx-auto p-4">
+    <div class="flex justify-center mb-4">
+        <h1 class="text-3xl font-bold">Dating Explorer</h1>
+    </div>
+
+    <div class="w-full max-w-lg mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 bg-cover bg-center h-64" style="background-image: url('@currentProfile.ImageUrl');">
         </div>
-    }
-    else
-    {
-        <p class="text-gray-500 text-2xl">No profiles available.</p>
-    }
-</div>
+        <div class="p-4">
+            <h5 class="text-xl font-bold mb-2">@currentProfile.UserName</h5>
+            <dl class="mb-4">
+                <dt class="font-semibold">Birth Date:</dt>
+                <dd>@FormatBirthDate(currentProfile.BirthDate)</dd>
+                <dt class="font-semibold">Height:</dt>
+                <dd>@currentProfile.Height cm</dd>
+                <dt class="font-semibold">About Me:</dt>
+                <dd>@currentProfile.AboutMe</dd>
+                <dt class="font-semibold">Gender:</dt>
+                <dd>@currentProfile.Gender</dd>
+                <dt class="font-semibold">City:</dt>
+                <dd>@currentProfile.CityName</dd>
+                <dt class="font-semibold">Hobbies:</dt>
+                <dd>@currentProfile.Hobbies</dd>
+            </dl>
+        </div>
+        <div class="p-4 bg-gray-100 flex justify-end">
+            <button
+                class="transition duration-300 ease-in-out text-white font-bold py-2 px-4 rounded-full cursor-pointer
+                            @(LikedStatus.ContainsKey(currentProfile.UserId) && LikedStatus[currentProfile.UserId] ? "bg-green-500 hover:bg-green-700" : "bg-blue-500 hover:bg-blue-700")"
+                @onclick="LikeUser">
+                <i class="fa fa-heart"></i> @(LikedStatus.ContainsKey(currentProfile.UserId) &&
+                LikedStatus[currentProfile.UserId] ? "Liked" : "Like")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-gray-600 text-2xl">No profiles available.</p>
+}
 
 @code {
     [Parameter]
     public int userId { get; set; }
 
-    private List<UserProfile> profiles = new List<UserProfile>();
-    private UserProfile currentUser;
+    private List<UserProfile> UserProfiles { get; set; } = new List<UserProfile>();
+    private Dictionary<int, bool> LikedStatus = new Dictionary<int, bool>();
+    private UserProfile currentProfile;
+    private Random random = new Random();
 
     protected override async Task OnInitializedAsync()
     {
-        currentUser = await DB.UserProfiles.FirstOrDefaultAsync(u => u.UserId == userId);
-        await LoadProfiles();
-    }
-
- private async Task LoadProfiles()
-{
-    // Assuming Gender is stored as an enum in the database and currentUser is correctly instantiated.
-    Gender genderPreference = currentUser.Gender == Gender.Male ? Gender.Female : Gender.Male; // Default to opposite binary genders
-    if (currentUser.Gender == Gender.Other)
-    {
-        // Assuming a strategy for 'Other', could be customized based on app requirements
-        // Here we just randomly show profiles of any gender except 'Other'
-        profiles = await DB.UserProfiles
-            .Where(up => up.UserId != userId && up.Gender != Gender.Other)
-            .OrderBy(r => Guid.NewGuid())
-            .Take(10)
-            .ToListAsync();
-    }
-    else
-    {
-        profiles = await DB.UserProfiles
-            .Where(up => up.UserId != userId && up.Gender == genderPreference)
-            .OrderBy(r => Guid.NewGuid())
-            .Take(10)
-            .ToListAsync();
-    }
-}
-
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        if (UserService.IsLoggedIn)
         {
-            await JSRuntime.InvokeVoidAsync("addSwipeListener", "profileElementId", DotNetObjectReference.Create(this));
+            UserProfiles = await DB.UserProfiles.Where(u => u.UserId != userId).ToListAsync();
+
+            foreach (var profile in UserProfiles)
+            {
+                var isLiked = await DB.Likes.AnyAsync(l => l.LikerId == UserService.Id && l.LikeeId == profile.UserId && l.Status == 1);
+                LikedStatus[profile.UserId] = isLiked;
+            }
+            SetRandomProfile();
         }
     }
 
-    [JSInvokable]
-    public async Task SwipeRight()
+    private async Task LikeUser()
     {
-        // Process right swipe
+        if (!UserService.IsLoggedIn || currentProfile == null)
+        {
+            return;
+        }
+
+        // Validate the current profile ID exists in the UserProfiles table
+        var likeeExists = await DB.UserProfiles.AnyAsync(u => u.UserId == currentProfile.UserId);
+        if (!likeeExists)
+        {
+            Console.WriteLine($"User with ID {currentProfile.UserId} does not exist in UserProfiles table");
+            return;
+        }
+
+        var existingLike = await DB.Likes.FirstOrDefaultAsync(l => l.LikerId == UserService.Id && l.LikeeId ==
+        currentProfile.UserId);
+
+        if (existingLike == null)
+        {
+            var newLike = new Like
+                {
+                    LikerId = UserService.Id,
+                    LikeeId = currentProfile.UserId,
+                    Status = 1 // Liked
+                };
+            DB.Likes.Add(newLike);
+            LikedStatus[currentProfile.UserId] = true;
+        }
+        else
+        {
+            existingLike.Status = existingLike.Status == 0 ? 1 : 0;
+            LikedStatus[currentProfile.UserId] = existingLike.Status == 1;
+        }
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving to database: {ex.Message}");
+        }
+
+        StateHasChanged();
         UpdateProfile();
     }
 
-    [JSInvokable]
-    public async Task SwipeLeft()
-    {
-        // Process left swipe
-        UpdateProfile();
-    }
 
     private void UpdateProfile()
     {
-        if (profiles.Count > 1)
+        if (UserProfiles.Count > 1)
         {
-            profiles.RemoveAt(0); // Remove the top profile
-            InvokeAsync(StateHasChanged); // Update UI
+            UserProfiles.Remove(currentProfile);
+            SetRandomProfile();
+        }
+        else
+        {
+            currentProfile = null;
         }
     }
 
-    private int CalculateAge(DateTime? birthDate)
+    private void SetRandomProfile()
     {
-        if (birthDate.HasValue)
+        if (UserProfiles.Any())
         {
-            DateTime now = DateTime.Today;
-            int age = now.Year - birthDate.Value.Year;
-
-            if (birthDate.Value.Date > now.AddYears(-age))
-            {
-                age--;
-            }
-
-            return age;
+            int index = random.Next(UserProfiles.Count);
+            currentProfile = UserProfiles[index];
         }
-        return 0;
+        else
+        {
+            currentProfile = null;
+        }
+    }
+
+    private string FormatBirthDate(DateTime? birthDate)
+    {
+        return birthDate.HasValue ? birthDate.Value.ToString("MMMM dd, yyyy") : "Unknown";
     }
 }

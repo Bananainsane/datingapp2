@@ -1,0 +1,85 @@
+@page "/matches/{userId:int}"
+@inject DatingApp.Data.DatingContext DB
+@inject DatingApp.Services.UserService UserService
+@using DatingApp.Models
+@using Microsoft.EntityFrameworkCore
+
+<h1 class="text-4xl font-bold text-center my-8">Your Matches</h1>
+
+@if (UserService.IsLoggedIn)
+{
+    <div class="container mx-auto p-4">
+        @if (matches != null && matches.Any())
+        {
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                @foreach (var match in matches)
+                {
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                        <img src="@match.UserProfile?.ImageUrl" alt="Profile Image" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold mb-2">@match.FirstName @match.LastName</h3>
+                            <p class="text-gray-600">@match.UserProfile?.CityName</p>
+                            <a href="@($"/messages/{match.Id}")" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Message</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-center text-gray-600 text-xl">You have no matches yet!</p>
+        }
+    </div>
+}
+else
+{
+    <p class="text-center text-gray-600 text-xl">Please <a href="/login" class="text-blue-500 hover:underline">login</a> to view your matches.</p>
+}
+
+@code {
+    [Parameter]
+    public int userId { get; set; }
+
+    private List<User> matches;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UserService.IsLoggedIn)
+        {
+            try
+            {
+                // Get the list of user IDs liked by the current user
+                var likedByUserIds = await DB.Likes
+                    .Where(l => l.LikerId == userId && l.Status == 1)
+                    .Select(l => l.LikeeId)
+                    .ToListAsync();
+
+                Console.WriteLine($"User {userId} likes users: {string.Join(", ", likedByUserIds)}");
+
+                // Get the list of mutual likes
+                matches = await DB.Users
+                    .Where(u => likedByUserIds.Contains(u.Id) &&
+                                 DB.Likes.Any(l => l.LikerId == u.Id && l.LikeeId == userId && l.Status == 1))
+                    .Include(u => u.UserProfile)
+                    .ToListAsync();
+
+                if (matches == null || !matches.Any())
+                {
+                    Console.WriteLine("No matches found.");
+                }
+                else
+                {
+                    Console.WriteLine($"Found {matches.Count} matches.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("User is not logged in.");
+        }
+    }
+}
