@@ -50,22 +50,23 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Debug.WriteLine("OnInitializedAsync started");
+        Console.WriteLine("OnInitializedAsync started");
 
         if (UserService.IsLoggedIn)
         {
             var currentUserId = UserService.Id;
-            Debug.WriteLine($"Current User ID: {currentUserId}");
+            Console.WriteLine($"Current User ID: {currentUserId}");
 
             try
             {
                 var selectedUser = await DB.Users.FindAsync(userId);
                 selectedUserName = selectedUser?.FirstName + " " + selectedUser?.LastName ?? "Unknown User";
-                Debug.WriteLine($"Selected User Name: {selectedUserName}");
+                Console.WriteLine(selectedUser.Id);
+                Console.WriteLine($"Selected User Name: {selectedUserName }");
 
                 var likedEachOther = await DB.Likes.AnyAsync(l => l.LikerId == userId && l.LikeeId == currentUserId && l.Status == 1) &&
                                      await DB.Likes.AnyAsync(l => l.LikerId == currentUserId && l.LikeeId == userId && l.Status == 1);
-                Debug.WriteLine($"Liked each other: {likedEachOther}");
+                Console.WriteLine($"Liked each other: {likedEachOther}");
 
                 if (likedEachOther)
                 {
@@ -74,37 +75,41 @@ else
                                                    (m.SenderId == currentUserId && m.ReceiverId == userId))
                                        .OrderBy(m => m.Timestamp)
                                        .ToListAsync();
-                    Debug.WriteLine($"Loaded {messages.Count} messages.");
+                    Console.WriteLine($"Loaded {messages.Count} messages.");
+                    foreach (var msg in messages)
+                    {
+                        Console.WriteLine($"Message loaded: SenderId={msg.SenderId}, ReceiverId={msg.ReceiverId}, Msg={msg.Msg}, Timestamp={msg.Timestamp}");
+                    }
                 }
                 else
                 {
-                    Debug.WriteLine("You do not have permission to message this user.");
+                    Console.WriteLine("You do not have permission to message this user.");
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An error occurred while initializing: {ex.Message}");
+                Console.WriteLine($"An error occurred while initializing: {ex.Message}");
             }
         }
         else
         {
-            Debug.WriteLine("User is not logged in.");
+            Console.WriteLine("User is not logged in.");
         }
     }
 
     private void HandleButtonClick()
     {
-        Debug.WriteLine("HandleButtonClick called");
+        Console.WriteLine("HandleButtonClick called");
         SendMessage().GetAwaiter().GetResult();
     }
 
     private async Task SendMessage()
     {
-        Debug.WriteLine("SendMessage called");
+        Console.WriteLine("SendMessage called");
 
         if (string.IsNullOrWhiteSpace(newMessage))
         {
-            Debug.WriteLine("New message is empty or whitespace.");
+            Console.WriteLine("New message is empty or whitespace.");
             return;
         }
 
@@ -118,32 +123,32 @@ else
                 Timestamp = DateTime.Now
             };
 
-            Debug.WriteLine($"Creating message: SenderId={message.SenderId}, ReceiverId={message.ReceiverId}, Msg={message.Msg}, Timestamp={message.Timestamp}");
+            Console.WriteLine($"Creating message: SenderId={message.SenderId}, ReceiverId={message.ReceiverId}, Msg={message.Msg}, Timestamp={message.Timestamp}");
 
             DB.Messages.Add(message);
-            Debug.WriteLine("Message added to DbSet.");
+            Console.WriteLine("Message added to DbSet.");
 
             var saveResult = await DB.SaveChangesAsync();
-            Debug.WriteLine($"SaveChangesAsync result: {saveResult}");
+            Console.WriteLine($"SaveChangesAsync result: {saveResult}");
 
             if (saveResult > 0)
             {
-                Debug.WriteLine("Message successfully saved to the database.");
+                Console.WriteLine("Message successfully saved to the database.");
 
                 messages.Add(message);
                 newMessage = string.Empty;
-                Debug.WriteLine("Message added to local list and UI refreshed.");
+                Console.WriteLine("Message added to local list and UI refreshed.");
 
                 StateHasChanged(); // Refresh the UI
             }
             else
             {
-                Debug.WriteLine("SaveChangesAsync did not affect any rows.");
+                Console.WriteLine("SaveChangesAsync did not affect any rows.");
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"An error occurred while sending message: {ex.Message}");
+            Console.WriteLine($"An error occurred while sending message: {ex.Message}");
         }
     }
 }

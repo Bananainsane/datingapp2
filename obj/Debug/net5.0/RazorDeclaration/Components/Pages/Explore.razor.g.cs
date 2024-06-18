@@ -121,14 +121,6 @@ using BlazorBootstrap
         };
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-{
-    if (firstRender)
-    {
-        await JSRuntime.InvokeVoidAsync("addSwipeListener", "profileElementId", DotNetObjectReference.Create(this));
-    }
-}
-
 
     public async Task SwipeRight()
     {

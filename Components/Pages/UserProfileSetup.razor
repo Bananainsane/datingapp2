@@ -112,6 +112,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+         StateHasChanged();
         if (UserService.IsLoggedIn)
         {
             Console.WriteLine("User is logged in, loading profile.");

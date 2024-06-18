@@ -93,7 +93,24 @@
             Console.WriteLine("Adding user...");
             DB.Users.Add(User);
             await DB.SaveChangesAsync();
-            Console.WriteLine("User added.");
+
+            // Create a corresponding UserProfile with default values
+            var userProfile = new UserProfile
+            {
+                UserName = User.Login,
+                BirthDate = DateTime.Now.AddYears(-20), // Default birthdate 20 years ago
+                Height = 170, // Default height
+                AboutMe = "About Me text here", // Default about me text
+                Gender = Model.Enums.Gender.Other, // Default gender (Other)
+                UserId = User.Id, // Link to the created user
+                CityName = "CityName", // Default city name
+                Hobbies = "Hobbies", // Default hobbies
+                ImageUrl = "ImageUrl" // Default image URL
+            };
+            DB.UserProfiles.Add(userProfile);
+            await DB.SaveChangesAsync();
+
+            Console.WriteLine("User and UserProfile added.");
             successMessage = "User created successfully! Please proceed to sign in.";
             StateHasChanged(); // Update the UI with the success message
         }
