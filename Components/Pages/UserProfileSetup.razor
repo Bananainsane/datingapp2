@@ -6,6 +6,8 @@
 @using DatingApp.Model.Enums
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@rendermode InteractiveServer
 
 <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
@@ -13,7 +15,7 @@
 
         @if (LastSubmitResult != null)
         {
-            <h2 class="text-center text-red-500">
+            <h2 class="text-center @(IsSuccess ? "text-green-500" : "text-red-500")">
                 Last submit status: @LastSubmitResult
             </h2>
         }
@@ -53,10 +55,10 @@
                     <InputSelect id="Gender" @bind-Value="gender"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         <option value="">Select a Gender</option>
-                @foreach (var gender in Enum.GetValues<Gender>())
-                {
-                    <option value="@gender">@gender</option>
-                }
+                        @foreach (var gender in Enum.GetValues<Gender>())
+                        {
+                            <option value="@gender">@gender</option>
+                        }
                     </InputSelect>
                 </div>
 
@@ -70,6 +72,11 @@
                     <label for="Hobbies" class="block text-sm font-medium text-gray-700">Hobbies</label>
                     <InputText id="Hobbies" @bind-Value="hobbies"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Profile Image</label>
+                    <InputFile OnChange="HandleSelected" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
                 </div>
 
                 <div>
@@ -98,6 +105,7 @@
 
     private UserProfile? userProfile;
     private string LastSubmitResult;
+    private bool IsSuccess;
 
     // Individual variables for form fields
     private string userName;
@@ -107,12 +115,12 @@
     private Gender? gender;
     private string cityName;
     private string hobbies;
-
+    private string? base64Image;
     private EditContext editContext;
 
     protected override async Task OnInitializedAsync()
     {
-         StateHasChanged();
+        StateHasChanged();
         if (UserService.IsLoggedIn)
         {
             Console.WriteLine("User is logged in, loading profile.");
@@ -124,7 +132,7 @@
                 userProfile = new UserProfile
                 {
                     UserId = userId,
-                    BirthDate = DateTime.Now // Initialize BirthDate to a default value
+                    BirthDate = DateTime.Now
                 };
             }
             else
@@ -139,6 +147,7 @@
                 gender = userProfile.Gender;
                 cityName = userProfile.CityName;
                 hobbies = userProfile.Hobbies;
+                base64Image = userProfile.ImageUrl; // Assuming ImageUrl is used to store base64 image data
             }
 
             // Create EditContext with initial form values
@@ -155,50 +164,68 @@
     {
         Console.WriteLine("ValidFormSubmitted triggered");
 
-
         // Validate individual fields before constructing userProfile
         if (string.IsNullOrEmpty(userName) || !birthDate.HasValue)
         {
             LastSubmitResult = "Error: All required fields must be filled out.";
+            IsSuccess = false;
             return;
         }
 
-        userProfile = new UserProfile
-        {
-            UserId = userId,
-            UserName = userName,
-            BirthDate = birthDate.Value,
-            Height = height ?? 0,
-            AboutMe = aboutMe,
-            Gender = gender ?? Gender.Other,
-            CityName = cityName,
-            Hobbies = hobbies
-        };
-
         try
         {
-            var existingProfile = await DB.UserProfiles.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == userId);
+            var existingProfile = await DB.UserProfiles.FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (existingProfile != null) // Existing profile
             {
                 Console.WriteLine($"Updating the profile for user ID {userId}.");
-                DB.Entry(userProfile).State = EntityState.Modified;
+
+                // Update properties of the existing profile
+                existingProfile.UserName = userName;
+                existingProfile.BirthDate = birthDate.Value;
+                existingProfile.Height = height ?? 0;
+                existingProfile.AboutMe = aboutMe;
+                existingProfile.Gender = gender ?? Gender.Other;
+                existingProfile.CityName = cityName;
+                existingProfile.Hobbies = hobbies;
+                if (!string.IsNullOrEmpty(base64Image))
+                {
+                    existingProfile.ImageUrl = base64Image;
+                }
+
+                DB.UserProfiles.Update(existingProfile);
             }
             else // New profile
             {
                 Console.WriteLine($"Creating a new profile for user ID {userId}.");
+
+                userProfile = new UserProfile
+                {
+                    UserId = userId,
+                    UserName = userName,
+                    BirthDate = birthDate.Value,
+                    Height = height ?? 0,
+                    AboutMe = aboutMe,
+                    Gender = gender ?? Gender.Other,
+                    CityName = cityName,
+                    Hobbies = hobbies,
+                    ImageUrl = base64Image
+                };
+
                 DB.UserProfiles.Add(userProfile);
             }
 
             await DB.SaveChangesAsync();
-            Console.WriteLine("Profile saved successfully for user ID " + userProfile.UserId);
+            Console.WriteLine("Profile saved successfully for user ID " + userId);
             LastSubmitResult = "Profile saved successfully!";
+            IsSuccess = true;
             NavigationManager.NavigateTo($"/profile/{userProfile.UserId}");
         }
         catch (DbUpdateException dbEx)
         {
             Console.WriteLine("Database update exception: " + dbEx.InnerException?.Message);
             LastSubmitResult = "Error: Unable to save profile to the database.";
+            IsSuccess = false;
         }
         catch (Exception ex)
         {
@@ -208,6 +235,7 @@
                 Console.WriteLine("Inner exception: " + ex.InnerException.Message);
             }
             LastSubmitResult = "Error: An unexpected error occurred while saving the profile.";
+            IsSuccess = false;
         }
     }
 
@@ -215,5 +243,15 @@
     {
         Console.WriteLine("InvalidFormSubmitted triggered");
         LastSubmitResult = "Form submission failed. Please check for validation errors.";
+        IsSuccess = false;
+    }
+
+    private async void HandleSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        var resizedFile = await file.RequestImageFileAsync(file.ContentType, 300, 300); // Resize image to 300x300
+        var buffer = new byte[resizedFile.Size];
+        await resizedFile.OpenReadStream().ReadAsync(buffer);
+        base64Image = Convert.ToBase64String(buffer);
     }
 }

@@ -27,13 +27,15 @@
 
                 <div>
                     <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                    <InputText id="username" @bind-Value="user.Login" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                    <InputText id="username" @bind-Value="user.Login"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
                     <ValidationMessage For="() => user.Login" class="text-red-500 text-sm" />
                 </div>
 
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <InputText id="password" type="password" @bind-Value="user.Password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                    <InputText id="password" type="password" @bind-Value="user.Password"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
                     <ValidationMessage For="() => user.Password" class="text-red-500 text-sm" />
                 </div>
 
@@ -44,7 +46,8 @@
                     </div>
                 }
 
-                <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <button type="submit"
+                    class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Login
                 </button>
             </EditForm>
@@ -60,13 +63,18 @@
     private User user { get; set; } = new();
     private string errorMessage;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (UserService.IsLoggedIn)
         {
-            JSRuntime.InvokeVoidAsync("alert", "You are already Logged In..");
-            NavigationManager.NavigateTo($"/profile/{UserService.Id}");
+            await loading();
         }
+    }
+
+    private async Task loading()
+    {
+        await Task.Delay(1500); // Optional delay for demonstration purposes
+        NavigationManager.NavigateTo($"/profile/{UserService.Id}", true);
     }
 
     private async Task LoginPage()
@@ -85,7 +93,7 @@
             UserService.Login = authenticatedUser.Login;
             UserService.IsLoggedIn = true;
 
-            NavigationManager.NavigateTo($"/profile/{authenticatedUser.Id}");
+            await loading(); // Redirect to profile after login
         }
         else
         {

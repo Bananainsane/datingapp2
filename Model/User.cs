@@ -4,33 +4,31 @@ namespace DatingApp.Models
 {
     public class User
     {
-        [Key]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Please provide a First Name")]
-        [StringLength(100)]
-        public string FirstName { get; set; } = string.Empty;
+        [Required(ErrorMessage = "First Name is required.")]
+        [StringLength(50, ErrorMessage = "First Name can't be longer than 50 characters.")]
+        public string FirstName { get; set; }
 
-        [Required(ErrorMessage = "Please provide a Last Name")]
-        [StringLength(100)]
-        public string LastName { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Last Name is required.")]
+        [StringLength(50, ErrorMessage = "Last Name can't be longer than 50 characters.")]
+        public string LastName { get; set; }
 
-        [Required(ErrorMessage = "Please provide a Email Name")]
-        [StringLength(100)]
-        public string Email { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid Email Address.")]
+        public string Email { get; set; }
 
-        [Required(ErrorMessage = "Please provide a Login Name")]
-        [StringLength(100)]
-        public string Login { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Login is required.")]
+        [StringLength(50, ErrorMessage = "Login can't be longer than 50 characters.")]
+        public string Login { get; set; }
 
-        [Required(ErrorMessage = "Please provide a Password Name")]
-        [StringLength(100)]
-        public string Password { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Password is required.")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]
+        public string Password { get; set; }
 
-        [Required(ErrorMessage = "Please provide a Password2 Name")]
-        [StringLength(100)]
-        public string Password2 { get; set; } = string.Empty;
-
+        [Compare("Password", ErrorMessage = "Password and Confirmation Password must match.")]
+        public string Password2 { get; set; }
+    
         public DateTime CreateDate { get; set; }
 
         public DateTime? DeleteDate { get; set; }

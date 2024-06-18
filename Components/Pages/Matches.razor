@@ -8,18 +8,18 @@
 
 @if (UserService?.IsLoggedIn == true)
 {
-    <div class="container mx-auto p-4">
+    <div class="container mx-auto p-4 min-h-screen bg-gray-100">
         @if (matches != null && matches.Any())
         {
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 @foreach (var match in matches)
                 {
-                    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-                        <img src="@match.UserProfile?.ImageUrl" alt="Profile Image" class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <h3 class="text-xl font-bold mb-2">@match.FirstName @match.LastName</h3>
-                            <p class="text-gray-600">@match.UserProfile?.CityName</p>
-                            <a href="@($"/messages/{match.Id}")" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Message</a>
+                    <div class="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                        <img src="@match.UserProfile?.ImageUrl" alt="Profile Image" class="w-full h-56 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-gray-800">@match.FirstName @match.LastName</h3>
+                            <p class="text-gray-600 mb-4">@match.UserProfile?.CityName</p>
+                            <a href="@($"/messages/{match.Id}")" class="inline-block bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300">Message</a>
                         </div>
                     </div>
                 }
@@ -33,8 +33,11 @@
 }
 else
 {
-    <p class="text-center text-gray-600 text-xl">Please <a href="/signin" class="text-blue-500 hover:underline">login</a> to view your matches.</p>
+    <div class="flex items-center justify-center min-h-screen bg-gray-100">
+        <p class="text-center text-gray-600 text-xl">Please <a href="/signin" class="text-indigo-600 hover:underline">login</a> to view your matches.</p>
+    </div>
 }
+
 
 @code {
     [Parameter]

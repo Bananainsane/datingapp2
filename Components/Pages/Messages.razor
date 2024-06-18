@@ -4,6 +4,8 @@
 @using DatingApp.Models
 @using Microsoft.EntityFrameworkCore
 @using System.Diagnostics
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
 
 <h1 class="text-2xl font-bold text-center">Messages</h1>
 
@@ -11,15 +13,30 @@
 {
     <div class="p-4">
         <h2 class="text-xl font-bold mb-4">Chat with @selectedUserName</h2>
-        <div class="border border-gray-300 p-4 rounded mb-4">
+        <div id="messageContainer" class="border border-gray-300 p-4 rounded mb-4 max-h-80 overflow-y-auto">
             @if (messages.Any())
             {
                 @foreach (var message in messages)
                 {
                     <div class="mb-2">
-                        <strong>@(message.SenderId == UserService.Id ? "Me" : selectedUserName):</strong>
-                        <p>@message.Msg</p>
-                        <small class="text-gray-500">@message.Timestamp</small>
+                        @if (message.SenderId == UserService.Id)
+                        {
+                            <div class="flex justify-end">
+                                <div class="bg-blue-500 text-white p-2 rounded-lg max-w-xs">
+                                    <p>@message.Msg</p>
+                                    <small class="text-gray-200">@message.Timestamp</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="flex justify-start">
+                                <div class="bg-gray-200 text-black p-2 rounded-lg max-w-xs">
+                                    <p>@message.Msg</p>
+                                    <small class="text-gray-600">@message.Timestamp</small>
+                                </div>
+                            </div>
+                        }
                     </div>
                 }
             }
@@ -31,13 +48,17 @@
 
         <div class="mt-4">
             <input @bind="newMessage" placeholder="Type your message..." class="border border-gray-300 p-2 rounded w-full" />
-            <button @onclick="HandleButtonClick" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Send</button>
+            <button @onclick="HandleButtonClickAsync" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Send</button>
         </div>
     </div>
 }
 else
 {
-    <p>Please <a href="/login">login</a> to view and send messages.</p>
+    <div class="flex justify-center mt-10">
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+            <p>Please <a href="/signin" class="text-blue-500 hover:underline">login</a> to view and send messages.</p>
+        </div>
+    </div>
 }
 
 @code {
@@ -61,8 +82,8 @@ else
             {
                 var selectedUser = await DB.Users.FindAsync(userId);
                 selectedUserName = selectedUser?.FirstName + " " + selectedUser?.LastName ?? "Unknown User";
-                Console.WriteLine(selectedUser.Id);
-                Console.WriteLine($"Selected User Name: {selectedUserName }");
+                Console.WriteLine($"Selected User ID: {selectedUser?.Id}");
+                Console.WriteLine($"Selected User Name: {selectedUserName}");
 
                 var likedEachOther = await DB.Likes.AnyAsync(l => l.LikerId == userId && l.LikeeId == currentUserId && l.Status == 1) &&
                                      await DB.Likes.AnyAsync(l => l.LikerId == currentUserId && l.LikeeId == userId && l.Status == 1);
@@ -80,6 +101,9 @@ else
                     {
                         Console.WriteLine($"Message loaded: SenderId={msg.SenderId}, ReceiverId={msg.ReceiverId}, Msg={msg.Msg}, Timestamp={msg.Timestamp}");
                     }
+
+                    // Scroll to bottom on initial load
+                    await JSRuntime.InvokeVoidAsync("scrollToBottom", "messageContainer");
                 }
                 else
                 {
@@ -97,15 +121,15 @@ else
         }
     }
 
-    private void HandleButtonClick()
+    private async Task HandleButtonClickAsync()
     {
-        Console.WriteLine("HandleButtonClick called");
-        SendMessage().GetAwaiter().GetResult();
+        Console.WriteLine("HandleButtonClickAsync called");
+        await SendMessageAsync();
     }
 
-    private async Task SendMessage()
+    private async Task SendMessageAsync()
     {
-        Console.WriteLine("SendMessage called");
+        Console.WriteLine("SendMessageAsync called");
 
         if (string.IsNullOrWhiteSpace(newMessage))
         {
@@ -140,6 +164,9 @@ else
                 Console.WriteLine("Message added to local list and UI refreshed.");
 
                 StateHasChanged(); // Refresh the UI
+
+                // Scroll to bottom after sending a new message
+                await JSRuntime.InvokeVoidAsync("scrollToBottom", "messageContainer");
             }
             else
             {

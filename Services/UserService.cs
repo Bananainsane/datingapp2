@@ -1,4 +1,4 @@
-﻿using System.Drawing.Printing;
+﻿using System.Threading.Tasks;
 
 namespace DatingApp.Services
 {
@@ -12,6 +12,11 @@ namespace DatingApp.Services
         public string? Login { get; set; }
         public bool IsLoggedIn { get; set; }
 
-
+        public async Task LogoutAsync()
+        {
+            // Simulate an async logout process (e.g., clearing tokens, notifying server, etc.)
+            await Task.Delay(100); // Simulate some async work
+            IsLoggedIn = false;
+        }
     }
 }

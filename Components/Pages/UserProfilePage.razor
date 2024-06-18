@@ -20,7 +20,14 @@
         <div class="w-full max-w-4xl bg-white p-8 rounded-lg shadow-lg">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center">
-                    <i class="fas fa-user-circle text-4xl text-indigo-600"></i>
+                    @if (!string.IsNullOrEmpty(profile.ImageUrl))
+                    {
+                        <img src="data:image/jpeg;base64,@profile.ImageUrl" alt="Profile Image" class="w-24 h-24 rounded-full shadow-md">
+                    }
+                    else
+                    {
+                        <i class="fas fa-user-circle text-4xl text-indigo-600"></i>
+                    }
                     <h2 class="text-2xl font-bold ml-4">@UserService.FirstName @UserService.LastName</h2>
                 </div>
                 <div class="space-x-2">
@@ -57,7 +64,7 @@
                         <p>@profile.Gender</p>
                     </div>
                     <div class="bg-gray-100 p-4 rounded-lg shadow-inner mt-4">
-                        <h3 class="font-semibold">City Name</h3>
+                        <h3 class="font-semibold">City</h3>
                         <p>@profile.CityName</p>
                     </div>
                 </div>
@@ -76,9 +83,9 @@
     }
     else
     {
-        <button
-            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            @onclick="EditProfile">Edit Profile</button>
+        <div class="text-center">
+            <p class="text-gray-600">Loading profile...</p>
+        </div>
     }
 </div>
 
@@ -86,89 +93,39 @@
     [Parameter]
     public int userId { get; set; }
 
-    private DatingApp.Models.UserProfile? profile;
-
-    private bool editMode = false;
+    private UserProfile? profile;
 
     protected override async Task OnInitializedAsync()
     {
         if (UserService.IsLoggedIn)
         {
             profile = await DB.UserProfiles.FirstOrDefaultAsync(u => u.UserId == userId);
-
-            if (profile == null)
-            {
-                profile = new DatingApp.Models.UserProfile
-                    {
-                        UserId = userId
-                    };
-            }
         }
-    }
-
-    private async Task HandleValidSubmit()
-    {
-        if (profile != null)
+        else
         {
-            if (profile.Id == 0) // New profile, since Id is not set
-            {
-                DB.UserProfiles.Add(profile);
-            }
-            else // Existing profile
-            {
-                DB.UserProfiles.Update(profile);
-            }
-            await DB.SaveChangesAsync();
-            NavigationManager.NavigateTo($"/user/{profile.UserId}");
+            NavigationManager.NavigateTo("/signin");
         }
     }
 
     private void EditProfile()
     {
-        Console.WriteLine("pressed edit");
-        NavigationManager.NavigateTo($"/UserProfileSetup/{userId}");
-    }
-    private void LoginSettings()
-    {
-        NavigationManager.NavigateTo($"/login/{userId}");
+        NavigationManager.NavigateTo($"/UserProfileSetup/{userId}", true);
     }
 
     private string FormatBirthDate(DateTime? birthDate)
     {
-        if (birthDate.HasValue)
-        {
-            // Get the name of the month and the year
-            int day = birthDate.Value.Day;
-            string monthName = birthDate.Value.ToString("MMMM");
-            monthName = char.ToUpper(monthName[0]) + monthName.Substring(1);
-            int year = birthDate.Value.Year;
-
-            return $"{day} {monthName} {year}";
-        }
-        else
-        {
-            return "Unknown";
-        }
+        return birthDate.HasValue ? birthDate.Value.ToString("MMMM dd, yyyy") : "Unknown";
     }
 
     private int Age(DateTime? birthDate)
     {
         if (birthDate.HasValue)
         {
-            DateTime now = DateTime.Today;
-            int age = now.Year - birthDate.Value.Year;
-
-            if (birthDate.Value.Date > now.AddYears(-age))
-            {
-                age--;
-            }
-
+            var today = DateTime.Today;
+            var age = today.Year - birthDate.Value.Year;
+            if (birthDate.Value.Date > today.AddYears(-age)) age--;
             return age;
         }
-        else
-        {
-            return 0;
-        }
+        return 0;
     }
 }
-
