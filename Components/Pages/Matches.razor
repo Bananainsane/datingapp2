@@ -9,18 +9,20 @@
 @if (UserService?.IsLoggedIn == true)
 {
     <div class="container mx-auto p-4 min-h-screen bg-gray-100">
-        @if (matches != null && matches.Any())
+    @if (matches != null && matches.Any())
         {
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div class="space-y-4">
                 @foreach (var match in matches)
                 {
-                    <div class="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
-                        <img src="@match.UserProfile?.ImageUrl" alt="Profile Image" class="w-full h-56 object-cover">
-                        <div class="p-6">
-                            <h3 class="text-2xl font-bold mb-2 text-gray-800">@match.FirstName @match.LastName</h3>
-                            <p class="text-gray-600 mb-4">@match.UserProfile?.CityName</p>
-                            <a href="@($"/messages/{match.Id}")" class="inline-block bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300">Message</a>
+                    <div class="bg-white shadow rounded-full overflow-hidden flex items-center p-4">
+                        <img src="@match.UserProfile?.ImageUrl" alt="Profile Image"
+                            class="w-16 h-16 object-cover rounded-full mr-4"> <!-- Adjust size and make image rounded -->
+                        <div class="flex-grow">
+                            <h3 class="text-xl font-bold mb-1 text-gray-800">@match.FirstName @match.LastName</h3>
+                            <p class="text-gray-600">@match.UserProfile?.CityName</p>
                         </div>
+                        <a href="@($"/messages/{match.Id}")"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-150">Message</a>
                     </div>
                 }
             </div>
@@ -30,12 +32,14 @@
             <p class="text-center text-gray-600 text-xl">You have no matches yet!</p>
         }
     </div>
+
 }
 else
 {
     <div class="flex items-center justify-center min-h-screen bg-gray-100">
-        <p class="text-center text-gray-600 text-xl">Please <a href="/signin" class="text-indigo-600 hover:underline">login</a> to view your matches.</p>
-    </div>
+    <p class="text-center text-gray-600 text-xl">Please <a href="/signin"
+            class="text-indigo-600 hover:underline">login</a> to view your matches.</p>
+</div>
 }
 
 
@@ -67,17 +71,17 @@ else
         {
             Console.WriteLine("Loading matches...");
             var likedByUserIds = await DB.Likes
-                .AsNoTracking()
-                .Where(l => l.LikerId == userId && l.Status == 1)
-                .Select(l => l.LikeeId)
-                .ToListAsync();
+            .AsNoTracking()
+            .Where(l => l.LikerId == userId && l.Status == 1)
+            .Select(l => l.LikeeId)
+            .ToListAsync();
 
             matches = await DB.Users
-                .AsNoTracking()
-                .Where(u => likedByUserIds.Contains(u.Id) &&
-                            DB.Likes.Any(l => l.LikerId == u.Id && l.LikeeId == userId && l.Status == 1))
-                .Include(u => u.UserProfile)
-                .ToListAsync();
+            .AsNoTracking()
+            .Where(u => likedByUserIds.Contains(u.Id) &&
+            DB.Likes.Any(l => l.LikerId == u.Id && l.LikeeId == userId && l.Status == 1))
+            .Include(u => u.UserProfile)
+            .ToListAsync();
             Console.WriteLine($"Loaded {matches.Count} matches.");
         }
         catch (Exception ex)

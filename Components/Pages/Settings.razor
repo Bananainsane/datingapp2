@@ -1,22 +1,28 @@
 @page "/settings/{userId:int}"
 @inject NavigationManager NavigationManager
 @inject DatingApp.Services.UserService UserService
+@inject DatingApp.Data.DatingContext DB
+@using Microsoft.EntityFrameworkCore
+
 @rendermode InteractiveServer
 
 <h1 class="text-2xl font-bold text-center mb-8">Settings</h1>
 <div class="p-4 max-w-md mx-auto bg-white rounded-lg shadow-md">
     <div class="mb-4">
-        <button class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center justify-center">
+        <button
+            class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center justify-center">
             <span>Change Password</span>
         </button>
     </div>
     <div class="mb-4">
-        <button class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center justify-center">
+        <button @onclick="DeleteAccount"
+            class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center justify-center">
             <span>Delete Account</span>
         </button>
     </div>
     <div>
-        <button @onclick="Logout" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center justify-center">
+        <button @onclick="Logout"
+            class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center justify-center">
             <span>Log Out</span>
         </button>
     </div>
@@ -30,5 +36,51 @@
     {
         await UserService.LogoutAsync();
         NavigationManager.NavigateTo("/signin", true);
+    }
+
+    private async Task DeleteAccount()
+    {
+        try
+        {
+            var user = await DB.Users
+                .Include(u => u.UserProfile)
+                .ThenInclude(up => up.LikedByUsers)
+                .Include(u => u.UserProfile)
+                .ThenInclude(up => up.LikedUsers)
+                .Include(u => u.UserProfile)
+                .ThenInclude(up => up.SentByUsers)
+                .Include(u => u.UserProfile)
+                .ThenInclude(up => up.ReceivedByUsers)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user != null)
+            {
+                // Remove related messages
+                DB.Messages.RemoveRange(user.UserProfile.SentByUsers);
+                DB.Messages.RemoveRange(user.UserProfile.ReceivedByUsers);
+
+                // Remove related likes
+                DB.Likes.RemoveRange(user.UserProfile.LikedByUsers);
+                DB.Likes.RemoveRange(user.UserProfile.LikedUsers);
+
+                // Remove user profile
+                DB.UserProfiles.Remove(user.UserProfile);
+
+                // Remove user
+                DB.Users.Remove(user);
+
+                await DB.SaveChangesAsync();
+                await UserService.LogoutAsync();
+                NavigationManager.NavigateTo("/signin", true);
+            }
+            else
+            {
+                Console.WriteLine("User not found.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while deleting the account: {ex.Message}");
+        }
     }
 }

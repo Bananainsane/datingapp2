@@ -12,7 +12,7 @@ namespace DatingApp.Data
         {
 
         }
-      
+
         public DbSet<User> Users { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<Like> Likes { get; set; }
@@ -47,10 +47,11 @@ namespace DatingApp.Data
                 .HasFilter(null);
 
             modelBuilder.Entity<User>()
-                .HasOne(u => u.UserProfile)                     // User has one UserProfile
-                .WithOne(p => p.User)                           // UserProfile is associated with one User
-                .HasForeignKey<UserProfile>(p => p.UserId)      // ForeignKey in UserProfile referencing UserId in User
-                .IsRequired(false);                             // User may not have a UserProfile, so it's not required
+      .HasOne(u => u.UserProfile)
+      .WithOne(p => p.User)
+      .HasForeignKey<UserProfile>(p => p.UserId)
+      .IsRequired(false) // User may not have a UserProfile
+      .OnDelete(DeleteBehavior.Cascade); // Ensure cascade delete
 
             //modelBuilder.Entity<City>()
             //.Property(et => et.Id)

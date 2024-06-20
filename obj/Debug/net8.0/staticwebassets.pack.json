@@ -1,71 +1,71 @@
 {
   "Files": [
     {
-      "Id": "C:\\code\\datingapp2\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\DatingApp.bundle.scp.css",
-      "PackagePath": "staticwebassets\\DatingApp.bundle.scp.css"
+      "Id": "/Users/hans/Skole/code/DatingAPP/obj/Debug/net8.0/scopedcss/projectbundle/DatingApp.bundle.scp.css",
+      "PackagePath": "staticwebassets/DatingApp.bundle.scp.css"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\WebApplication.cs",
-      "PackagePath": "staticwebassets\\WebApplication.cs"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/WebApplication.cs",
+      "PackagePath": "staticwebassets/WebApplication.cs"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\app.css",
-      "PackagePath": "staticwebassets\\app.css"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/app.css",
+      "PackagePath": "staticwebassets/app.css"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\bootstrap\\bootstrap.min.css",
-      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/bootstrap/bootstrap.min.css",
+      "PackagePath": "staticwebassets/bootstrap/bootstrap.min.css"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\bootstrap\\bootstrap.min.css.map",
-      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css.map"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/bootstrap/bootstrap.min.css.map",
+      "PackagePath": "staticwebassets/bootstrap/bootstrap.min.css.map"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\css\\animate.css\\animate.min.css",
-      "PackagePath": "staticwebassets\\css\\animate.css\\animate.min.css"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/css/animate.css/animate.min.css",
+      "PackagePath": "staticwebassets/css/animate.css/animate.min.css"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\css\\app.css",
-      "PackagePath": "staticwebassets\\css\\app.css"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/css/app.css",
+      "PackagePath": "staticwebassets/css/app.css"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\css\\styles.css",
-      "PackagePath": "staticwebassets\\css\\styles.css"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/css/styles.css",
+      "PackagePath": "staticwebassets/css/styles.css"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\css\\tailwind-built.css",
-      "PackagePath": "staticwebassets\\css\\tailwind-built.css"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/css/tailwind-built.css",
+      "PackagePath": "staticwebassets/css/tailwind-built.css"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\icon-192.png",
-      "PackagePath": "staticwebassets\\icon-192.png"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/icon-192.png",
+      "PackagePath": "staticwebassets/icon-192.png"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\index.html",
-      "PackagePath": "staticwebassets\\index.html"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/index.html",
+      "PackagePath": "staticwebassets/index.html"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\js\\swipeHandlers.js",
-      "PackagePath": "staticwebassets\\js\\swipeHandlers.js"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/js/swipeHandlers.js",
+      "PackagePath": "staticwebassets/js/swipeHandlers.js"
     },
     {
-      "Id": "C:\\code\\datingapp2\\wwwroot\\sample-data\\weather.json",
-      "PackagePath": "staticwebassets\\sample-data\\weather.json"
+      "Id": "/Users/hans/Skole/code/DatingAPP/wwwroot/sample-data/weather.json",
+      "PackagePath": "staticwebassets/sample-data/weather.json"
     },
     {
-      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.DatingApp.Microsoft.AspNetCore.StaticWebAssets.props",
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.DatingApp.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },
     {
-      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.DatingApp.props",
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.DatingApp.props",
       "PackagePath": "build\\DatingApp.props"
     },
     {
-      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.DatingApp.props",
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.DatingApp.props",
       "PackagePath": "buildMultiTargeting\\DatingApp.props"
     },
     {
-      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.DatingApp.props",
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.DatingApp.props",
       "PackagePath": "buildTransitive\\DatingApp.props"
     }
   ],
